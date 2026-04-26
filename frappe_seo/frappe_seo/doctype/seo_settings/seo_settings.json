@@ -1,0 +1,151 @@
+{
+ "actions": [],
+ "allow_events_in_timeline": 0,
+ "allow_guest_to_view": 0,
+ "allow_import": 0,
+ "allow_rename": 0,
+ "autoname": "SEO Settings",
+ "creation": "2026-04-26 14:38:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "general_section",
+  "site_name",
+  "title_separator",
+  "site_description",
+  "default_og_image",
+  "column_break_2",
+  "favicon",
+  "canonical_url",
+  "verification_section",
+  "google_search_console_id",
+  "bing_webmaster_id",
+  "column_break_8",
+  "yandex_verification_id",
+  "baidu_verification_id",
+  "automation_section",
+  "enable_auto_description",
+  "enable_schema_markup",
+  "enable_sitemap"
+ ],
+ "fields": [
+  {
+   "fieldname": "general_section",
+   "fieldtype": "Section Break",
+   "label": "General Settings"
+  },
+  {
+   "fieldname": "site_name",
+   "fieldtype": "Data",
+   "label": "Site Name"
+  },
+  {
+   "default": "|",
+   "fieldname": "title_separator",
+   "fieldtype": "Data",
+   "label": "Title Separator",
+   "description": "Example: | or -"
+  },
+  {
+   "fieldname": "site_description",
+   "fieldtype": "Small Text",
+   "label": "Default Meta Description"
+  },
+  {
+   "fieldname": "default_og_image",
+   "fieldtype": "Attach Image",
+   "label": "Default Social Share Image"
+  },
+  {
+   "fieldname": "column_break_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "favicon",
+   "fieldtype": "Attach Image",
+   "label": "Favicon"
+  },
+  {
+   "fieldname": "canonical_url",
+   "fieldtype": "Data",
+   "label": "Base Canonical URL",
+   "placeholder": "https://yourdomain.com"
+  },
+  {
+   "fieldname": "verification_section",
+   "fieldtype": "Section Break",
+   "label": "Webmaster Verification"
+  },
+  {
+   "fieldname": "google_search_console_id",
+   "fieldtype": "Data",
+   "label": "Google Search Console ID"
+  },
+  {
+   "fieldname": "bing_webmaster_id",
+   "fieldtype": "Data",
+   "label": "Bing Webmaster ID"
+  },
+  {
+   "fieldname": "column_break_8",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "yandex_verification_id",
+   "fieldtype": "Data",
+   "label": "Yandex Verification ID"
+  },
+  {
+   "fieldname": "baidu_verification_id",
+   "fieldtype": "Data",
+   "label": "Baidu Verification ID"
+  },
+  {
+   "fieldname": "automation_section",
+   "fieldtype": "Section Break",
+   "label": "Automation Settings"
+  },
+  {
+   "default": "1",
+   "fieldname": "enable_auto_description",
+   "fieldtype": "Check",
+   "label": "Enable Auto Description Generation"
+  },
+  {
+   "default": "1",
+   "fieldname": "enable_schema_markup",
+   "fieldtype": "Check",
+   "label": "Enable JSON-LD Schema Markup"
+  },
+  {
+   "default": "1",
+   "fieldname": "enable_sitemap",
+   "fieldtype": "Check",
+   "label": "Enable XML Sitemap"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "issingle": 1,
+ "links": [],
+ "modified": "2026-04-26 14:38:00.000000",
+ "modified_by": "Administrator",
+ "module": "Frappe SEO",
+ "name": "SEO Settings",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
