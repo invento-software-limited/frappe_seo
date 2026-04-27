@@ -1,47 +1,18 @@
 import frappe
 from frappe.custom.doctype.custom_field.custom_field import create_custom_fields
 
-
-# Fields that already exist natively — do NOT duplicate these
 NATIVE_FIELDS = {
-	"Web Page": {
-		"meta_title",       # already: Title
-		"meta_description", # already: Description
-		"meta_image",       # already: Image
-		"route",            # already: Route
-		"title",            # already: Title
-		"published",        # already: Published
-	},
-	"Blog Post": {
-		"title",
-		"route",
-		"published",
-		"blogger",
-		"blog_category",
-		"content",
-	},
-	"Builder Page": {
-		"title",
-		"route",
-		"published",
-	},
+	"Web Page": {"meta_title", "meta_description", "meta_image", "route", "title", "published"},
+	"Blog Post": {"title", "route", "published", "blogger", "blog_category", "content", "meta_title", "meta_description", "meta_image"},
+	"Builder Page": {"title", "route", "published", "meta_description", "meta_image", "canonical_url"},
 }
 
-
 def _existing_custom_fields(doctype):
-	return {
-		r[0] for r in frappe.db.get_all(
-			"Custom Field", filters={"dt": doctype}, pluck="fieldname"
-		)
-	}
-
+	"""Returns a set of existing custom field names for a specific DocType."""
+	return {r[0] for r in frappe.db.get_all("Custom Field", filters={"dt": doctype}, pluck="fieldname")}
 
 def _build_seo_fields(insert_after, meta_description_fieldname=None):
-	"""
-	Returns a list of SEO custom field definitions.
-	- insert_after: fieldname after which the section starts
-	- meta_description_fieldname: if None, meta_description already exists natively (don't add)
-	"""
+	"""Generates a list of SEO-related custom field definitions organized into sections."""
 	fields = [
 		{
 			"fieldname": "seo_section",
@@ -154,32 +125,25 @@ def _build_seo_fields(insert_after, meta_description_fieldname=None):
 	]
 	return fields
 
-
 def setup_seo_fields():
-	"""
-	Adds SEO custom fields to Web Page, Blog Post (if installed), and Builder Page (if installed).
-	Skips fields that already exist natively or were previously added.
-	"""
-	doctypes_config = {}
-
-	# --- Web Page (always installed with frappe) ---
-	doctypes_config["Web Page"] = {
-		"insert_after": "meta_image",  # after the native meta fields section
-		"meta_description_fieldname": None,  # meta_description already exists natively
+	"""Ensures all required SEO custom fields are created for supported DocTypes."""
+	doctypes_config = {
+		"Web Page": {
+			"insert_after": "meta_image",
+			"meta_description_fieldname": None,
+		}
 	}
 
-	# --- Blog Post (installed with erpnext/website) ---
 	if frappe.db.exists("DocType", "Blog Post"):
 		doctypes_config["Blog Post"] = {
-			"insert_after": "published",
-			"meta_description_fieldname": "seo_meta_description",  # add our own
+			"insert_after": "meta_image",
+			"meta_description_fieldname": None,
 		}
 
-	# --- Builder Page (installed with frappe_builder) ---
 	if frappe.db.exists("DocType", "Builder Page"):
 		doctypes_config["Builder Page"] = {
 			"insert_after": "route",
-			"meta_description_fieldname": "seo_meta_description",
+			"meta_description_fieldname": None,
 		}
 
 	fields_to_create = {}
@@ -195,16 +159,9 @@ def setup_seo_fields():
 		)
 
 		filtered = [f for f in raw_fields if f["fieldname"] not in skip]
-
 		if filtered:
 			fields_to_create[doctype] = filtered
-			print(f"  {doctype}: adding {len(filtered)} SEO fields")
-		else:
-			print(f"  {doctype}: all SEO fields already exist, skipping")
 
 	if fields_to_create:
 		create_custom_fields(fields_to_create)
 		frappe.db.commit()
-		print("\n✓ SEO custom fields setup complete.")
-	else:
-		print("\n✓ Nothing to do — all SEO fields already present.")

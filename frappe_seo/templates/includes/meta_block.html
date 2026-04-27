@@ -1,0 +1,47 @@
+{%- set standard_tags = ['description', 'canonical', 'robots', 'og:title', 'og:description', 'og:type', 'og:url', 'og:image', 'twitter:card', 'twitter:title', 'twitter:description', 'twitter:image', 'title'] -%}
+{%- if metatags.description or meta_description -%}
+<meta name="description" content="{{ (metatags.description or meta_description) | striptags | escape }}" />
+{%- endif -%}
+{%- if metatags.canonical or seo_canonical_url -%}
+<link rel="canonical" href="{{ metatags.canonical or seo_canonical_url }}" />
+{%- endif -%}
+{%- if metatags.robots or seo_robots -%}
+<meta name="robots" content="{{ metatags.robots or seo_robots }}" />
+{%- endif -%}
+{%- if google_search_console_id -%}<meta name="google-site-verification" content="{{ google_search_console_id }}" />{%- endif -%}
+{%- if bing_webmaster_id -%}<meta name="msvalidate.01" content="{{ bing_webmaster_id }}" />{%- endif -%}
+{%- if yandex_verification_id -%}<meta name="yandex-verification" content="{{ yandex_verification_id }}" />{%- endif -%}
+{%- if baidu_verification_id -%}<meta name="baidu-site-verification" content="{{ baidu_verification_id }}" />{%- endif -%}
+<meta property="og:title" content="{{ metatags.get('og:title') or metatags.title or og_title | striptags | escape }}" />
+<meta property="og:description" content="{{ metatags.get('og:description') or metatags.description or og_description | striptags | escape }}" />
+<meta property="og:type" content="{{ metatags.get('og:type') or 'website' }}" />
+{%- if metatags.canonical or seo_canonical_url -%}
+<meta property="og:url" content="{{ metatags.canonical or seo_canonical_url }}" />
+{%- endif -%}
+{%- if metatags.get('og:image') or metatags.image or og_image -%}
+<meta property="og:image" content="{{ metatags.get('og:image') or metatags.image or og_image }}" />
+{%- endif -%}
+<meta name="twitter:card" content="{{ metatags.get('twitter:card') or 'summary_large_image' }}" />
+<meta name="twitter:title" content="{{ metatags.get('twitter:title') or metatags.title or twitter_title | striptags | escape }}" />
+<meta name="twitter:description" content="{{ metatags.get('twitter:description') or metatags.description or twitter_description | striptags | escape }}" />
+{%- if metatags.get('twitter:image') or metatags.image or twitter_image -%}
+<meta name="twitter:image" content="{{ metatags.get('twitter:image') or metatags.image or twitter_image }}" />
+{%- endif -%}
+{%- for name in metatags -%}
+	{%- if name not in standard_tags -%}
+		{%- set content = metatags.get(name) -%}
+		{%- if content -%}
+			<meta {% if name.startswith('og:') %}property="{{ name }}"{% else %}name="{{ name }}"{% endif %} content="{{ content | striptags | escape }}">
+		{%- endif -%}
+	{%- endif -%}
+{%- endfor -%}
+{%- if custom_meta_tags -%}
+	{%- for tag in custom_meta_tags -%}
+		<meta {{ tag.type }}="{{ tag.name }}" content="{{ tag.content | striptags | escape }}" />
+	{%- endfor -%}
+{%- endif -%}
+{%- if seo_schema_json -%}
+<script type="application/ld+json">
+{{ seo_schema_json }}
+</script>
+{%- endif -%}
