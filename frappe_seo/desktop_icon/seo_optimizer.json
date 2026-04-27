@@ -1,0 +1,22 @@
+{
+    "app": "frappe_seo",
+    "bg_color": "gray",
+    "creation": "2026-04-27 14:01:00.846436",
+    "docstatus": 0,
+    "doctype": "Desktop Icon",
+    "hidden": 0,
+    "icon_image": "/assets/frappe_seo/images/seo_logo.png",
+    "icon_type": "Link",
+    "idx": 0,
+    "label": "SEO Optimizer",
+    "link_to": "SEO Optimizer",
+    "link_type": "Workspace Sidebar",
+    "logo_url": "/assets/frappe_seo/images/seo_logo.png",
+    "modified": "2026-04-27 14:07:08.602943",
+    "modified_by": "Administrator",
+    "name": "SEO Optimizer",
+    "owner": "munim@invento.com.bd",
+    "restrict_removal": 0,
+    "roles": [],
+    "standard": 1
+}

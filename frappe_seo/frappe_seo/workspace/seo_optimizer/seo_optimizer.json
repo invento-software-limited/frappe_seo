@@ -1,0 +1,66 @@
+{
+ "app": "frappe_seo",
+ "charts": [
+  {
+   "chart_name": "SEO Health Breakdown",
+   "label": "SEO Health Breakdown"
+  }
+ ],
+ "content": "[{\"id\":\"Vpf1k3WGma\",\"type\":\"chart\",\"data\":{\"chart_name\":\"SEO Health Breakdown\",\"col\":12}},{\"id\":\"seo_spacer_1\",\"type\":\"spacer\",\"data\":{\"col\":12}}]",
+ "creation": "2026-04-27 14:13:00",
+ "custom_blocks": [],
+ "docstatus": 0,
+ "doctype": "Workspace",
+ "hide_custom": 0,
+ "icon": "trending-up",
+ "idx": 0,
+ "indicator_color": "green",
+ "is_hidden": 0,
+ "label": "SEO Optimizer",
+ "links": [
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Web Page List",
+   "link_count": 0,
+   "link_to": "Web Page",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Blog Post List",
+   "link_count": 0,
+   "link_to": "Blog Post",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Builder Page List",
+   "link_count": 0,
+   "link_to": "Builder Page",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  }
+ ],
+ "modified": "2026-04-27 14:47:23.417393",
+ "modified_by": "Administrator",
+ "module": "Frappe SEO",
+ "name": "SEO Optimizer",
+ "number_cards": [],
+ "owner": "Administrator",
+ "parent_page": "",
+ "public": 1,
+ "quick_lists": [],
+ "roles": [],
+ "sequence_id": 0.0,
+ "shortcuts": [],
+ "title": "SEO Optimizer",
+ "type": "Workspace"
+}

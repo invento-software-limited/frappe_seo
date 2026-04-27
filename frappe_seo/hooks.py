@@ -11,6 +11,11 @@ app_include_js = ["/assets/frappe_seo/js/frappe_seo.js"]
 # ── Website Head Injection ─────────────────────────────────────────────────
 update_website_context = ["frappe_seo.website.context.inject_seo_context"]
 
+# ── Setup Wizard
+setup_wizard_stages = "frappe_seo.setup.wizard.get_setup_wizard_stages"
+setup_wizard_complete = "frappe_seo.setup.wizard.setup_wizard_complete"
+setup_wizard_requires = ["/assets/frappe_seo/js/setup_wizard.js"]
+
 # ── Document Events ────────────────────────────────────────────────────────
 doc_events = {
 	"Web Page": {

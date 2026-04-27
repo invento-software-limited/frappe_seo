@@ -108,9 +108,21 @@
   },
   {
    "default": "1",
+   "fieldname": "enable_seo_automation",
+   "fieldtype": "Check",
+   "label": "Enable SEO Automation"
+  },
+  {
+   "default": "1",
    "fieldname": "enable_auto_description",
    "fieldtype": "Check",
    "label": "Enable Auto Description Generation"
+  },
+  {
+   "default": "1",
+   "fieldname": "enable_auto_keyphrase",
+   "fieldtype": "Check",
+   "label": "Enable Auto Keyphrase Suggestion"
   },
   {
    "default": "1",

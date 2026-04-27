@@ -1,0 +1,29 @@
+{
+ "chart_name": "SEO Health Breakdown",
+ "chart_type": "Report",
+ "creation": "2026-04-27 14:16:30.123456",
+ "docstatus": 0,
+ "doctype": "Dashboard Chart",
+ "filters_json": "null",
+ "idx": 0,
+ "is_public": 1,
+ "is_standard": 1,
+ "modified": "2026-04-27 14:41:58.825069",
+ "modified_by": "Administrator",
+ "module": "Frappe SEO",
+ "name": "SEO Health Breakdown",
+ "number_of_groups": 0,
+ "owner": "Administrator",
+ "report_name": "SEO Health Report",
+ "roles": [],
+ "show_values_over_chart": 0,
+ "timeseries": 0,
+ "type": "Donut",
+ "use_report_chart": 1,
+ "x_field": "status",
+ "y_axis": [
+  {
+   "y_field": "count"
+  }
+ ]
+}

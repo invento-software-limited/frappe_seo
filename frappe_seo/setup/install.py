@@ -110,11 +110,18 @@ def _build_seo_fields(insert_after, meta_description_fieldname=None):
 			"insert_after": "seo_noindex",
 		},
 		{
+			"fieldname": "seo_score",
+			"fieldtype": "Percent",
+			"label": "SEO Score",
+			"read_only": 1,
+			"insert_after": "seo_nofollow",
+		},
+		{
 			"fieldname": "seo_analysis_section",
 			"fieldtype": "Section Break",
 			"label": "SEO Analysis",
 			"collapsible": 1,
-			"insert_after": "seo_nofollow",
+			"insert_after": "seo_score",
 		},
 		{
 			"fieldname": "seo_score_html",
