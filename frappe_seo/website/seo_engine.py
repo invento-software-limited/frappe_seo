@@ -166,16 +166,23 @@ def _auto_generate_description(doc):
 				if not isinstance(block_list, list): block_list = [block_list]
 				for b in block_list:
 					block_name = (b.get("blockName") or "").lower()
-					if any(x in block_name for x in ["navbar", "footer", "nav", "menu"]): continue
-					if b.get("element") in ["img", "svg", "button"]: continue
+					element = (b.get("element") or "").lower()
+					if any(x in block_name for x in ["navbar", "footer", "nav", "menu", "sidebar", "link", "social"]): continue
+					if element in ["nav", "header", "footer", "img", "svg", "button", "script", "style"]: continue
+					
 					val = b.get("innerHTML")
 					if val and isinstance(val, str) and len(val.strip()) > 5:
 						clean_val = strip_html_tags(val).strip()
-						if (not clean_val.startswith("/") and not clean_val.startswith("{")):
+						if clean_val and not clean_val.startswith("/") and not clean_val.startswith("{"):
 							texts.append(clean_val)
-					if b.get("children"): texts.extend(extract_text_from_blocks(b.get("children")))
+					
+					if b.get("children"): 
+						texts.extend(extract_text_from_blocks(b.get("children")))
 				return texts
-			content = " ".join(extract_text_from_blocks(blocks))
+			all_texts = extract_text_from_blocks(blocks)
+			# Prioritize longer, more descriptive blocks first
+			all_texts.sort(key=len, reverse=True)
+			content = " ".join(all_texts)
 		except:
 			pass
 
@@ -184,7 +191,22 @@ def _auto_generate_description(doc):
 	plain = strip_html_tags(content)
 	plain = html.unescape(plain)
 	plain = re.sub(r"\s+", " ", plain).strip()
-	return plain[:157]
+	
+	if len(plain) <= 160:
+		return plain
+
+	# Try to find the last sentence ending within 160 chars
+	truncated = plain[:160]
+	match = re.search(r"(.+[.!?])\s", truncated)
+	if match:
+		return match.group(1)
+	
+	# Fallback: find the last space to avoid cutting a word
+	match = re.search(r"(.+)\s", truncated)
+	if match:
+		return match.group(1).strip() + "..."
+	
+	return truncated[:157] + "..."
 
 
 def _get_description_field(doctype):
