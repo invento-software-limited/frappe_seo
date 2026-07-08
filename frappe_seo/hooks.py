@@ -5,6 +5,8 @@ app_description = "Premium all-in-one SEO for Frappe: meta tags, OG/Twitter card
 app_email = "hello@invento.com.bd"
 app_license = "mit"
 
+required_apps = ["blog"]
+
 # ── Desk JS/CSS ────────────────────────────────────────────────────────────
 app_include_js = ["/assets/frappe_seo/js/frappe_seo.js"]
 
