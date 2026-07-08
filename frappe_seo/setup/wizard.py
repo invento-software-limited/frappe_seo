@@ -74,8 +74,6 @@ def setup_wizard_complete(args):
 	settings.enable_schema_markup = args.get("enable_schema_markup", 1)
 	settings.save(ignore_permissions=True)
 
-	frappe.db.commit()
-
 	# Trigger background job to initialize SEO on existing pages
 	if args.get("process_existing"):
 		frappe.enqueue(
