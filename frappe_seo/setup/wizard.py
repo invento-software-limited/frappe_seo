@@ -55,27 +55,27 @@ def get_setup_wizard_stages(stages=None):
 
 
 @frappe.whitelist()
-def setup_wizard_complete(args):
+def setup_wizard_complete(data: str | dict):
 	"""
 	Processes the SEO configuration data once the Setup Wizard is finished.
 	"""
-	if isinstance(args, str):
+	if isinstance(data, str):
 		import json
 
-		args = json.loads(args)
+		data = json.loads(data)
 
-	if not args.get("seo_site_name"):
+	if not data.get("seo_site_name"):
 		return
 
 	settings = frappe.get_doc("SEO Settings")
-	settings.site_name = args.get("seo_site_name")
-	settings.site_description = args.get("seo_site_description")
-	settings.enable_seo_automation = args.get("enable_seo_automation", 1)
-	settings.enable_schema_markup = args.get("enable_schema_markup", 1)
+	settings.site_name = data.get("seo_site_name")
+	settings.site_description = data.get("seo_site_description")
+	settings.enable_seo_automation = data.get("enable_seo_automation", 1)
+	settings.enable_schema_markup = data.get("enable_schema_markup", 1)
 	settings.save(ignore_permissions=True)
 
 	# Trigger background job to initialize SEO on existing pages
-	if args.get("process_existing"):
+	if data.get("process_existing"):
 		frappe.enqueue(
 			"frappe_seo.setup.wizard.initialize_seo_on_existing_pages",
 			now=frappe.flags.in_test,
