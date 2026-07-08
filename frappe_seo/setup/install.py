@@ -186,4 +186,3 @@ def setup_seo_fields():
 
 	if fields_to_create:
 		create_custom_fields(fields_to_create)
-		frappe.db.commit()
