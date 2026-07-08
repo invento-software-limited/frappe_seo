@@ -1,4 +1,5 @@
 import frappe
+
 from frappe_seo.website.seo_engine import get_seo_context
 
 

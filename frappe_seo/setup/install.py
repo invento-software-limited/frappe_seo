@@ -3,13 +3,25 @@ from frappe.custom.doctype.custom_field.custom_field import create_custom_fields
 
 NATIVE_FIELDS = {
 	"Web Page": {"meta_title", "meta_description", "meta_image", "route", "title", "published"},
-	"Blog Post": {"title", "route", "published", "blogger", "blog_category", "content", "meta_title", "meta_description", "meta_image"},
+	"Blog Post": {
+		"title",
+		"route",
+		"published",
+		"blogger",
+		"blog_category",
+		"content",
+		"meta_title",
+		"meta_description",
+		"meta_image",
+	},
 	"Builder Page": {"title", "route", "published", "meta_description", "meta_image", "canonical_url"},
 }
+
 
 def _existing_custom_fields(doctype):
 	"""Returns a set of existing custom field names for a specific DocType."""
 	return {r[0] for r in frappe.db.get_all("Custom Field", filters={"dt": doctype}, pluck="fieldname")}
+
 
 def _build_seo_fields(insert_after, meta_description_fieldname=None):
 	"""Generates a list of SEO-related custom field definitions organized into sections."""
@@ -31,13 +43,15 @@ def _build_seo_fields(insert_after, meta_description_fieldname=None):
 	]
 
 	if meta_description_fieldname:
-		fields.append({
-			"fieldname": meta_description_fieldname,
-			"fieldtype": "Small Text",
-			"label": "Meta Description",
-			"description": "Ideal: 120–160 characters. Shown in Google search results.",
-			"insert_after": "focus_keyphrase",
-		})
+		fields.append(
+			{
+				"fieldname": meta_description_fieldname,
+				"fieldtype": "Small Text",
+				"label": "Meta Description",
+				"description": "Ideal: 120-160 characters. Shown in Google search results.",
+				"insert_after": "focus_keyphrase",
+			}
+		)
 		prev = meta_description_fieldname
 	else:
 		prev = "focus_keyphrase"
@@ -61,7 +75,7 @@ def _build_seo_fields(insert_after, meta_description_fieldname=None):
 			"fieldname": "seo_og_image",
 			"fieldtype": "Attach Image",
 			"label": "Social Share Image (OG)",
-			"description": "Recommended: 1200×630px. Leave blank to use default.",
+			"description": "Recommended: 1200x630px. Leave blank to use default.",
 			"insert_after": "seo_og_description",
 		},
 		{
@@ -131,6 +145,7 @@ def _build_seo_fields(insert_after, meta_description_fieldname=None):
 		},
 	]
 	return fields
+
 
 def setup_seo_fields():
 	"""Ensures all required SEO custom fields are created for supported DocTypes."""

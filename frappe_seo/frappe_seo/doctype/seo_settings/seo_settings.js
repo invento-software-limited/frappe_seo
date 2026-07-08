@@ -9,7 +9,7 @@ frappe.ui.form.on("SEO Settings", {
 						label: __("Site Name"),
 						fieldtype: "Data",
 						default: frm.doc.site_name || frappe.boot.sysdefaults.site_name,
-						reqd: 1
+						reqd: 1,
 					},
 					{
 						fieldname: "seo_site_description",
@@ -31,35 +31,37 @@ frappe.ui.form.on("SEO Settings", {
 					},
 					{
 						fieldtype: "Section Break",
-						label: __("Existing Pages")
+						label: __("Existing Pages"),
 					},
 					{
 						fieldname: "process_existing",
 						label: __("Initialize SEO for all existing published pages"),
 						fieldtype: "Check",
 						default: 1,
-						description: __("This will run a background job to update Web Pages, Blog Posts, and Builder Pages.")
-					}
+						description: __(
+							"This will run a background job to update Web Pages, Blog Posts, and Builder Pages."
+						),
+					},
 				],
 				primary_action_label: __("Complete Setup"),
 				primary_action(values) {
 					frappe.call({
 						method: "frappe_seo.setup.wizard.setup_wizard_complete",
 						args: {
-							args: values
+							args: values,
 						},
 						callback: function (r) {
 							d.hide();
 							frappe.show_alert({
 								message: __("SEO Setup Complete! Background job started."),
-								indicator: "green"
+								indicator: "green",
 							});
 							frm.reload_doc();
-						}
+						},
 					});
-				}
+				},
 			});
 			d.show();
 		}).addClass("btn-primary");
-	}
+	},
 });

@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#4f46e5"/>
+      <stop offset="100%" stop-color="#3730a3"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)" rx="0"/>
+  <rect x="60" y="60" width="1080" height="510" rx="20" fill="rgba(255,255,255,0.08)" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+  <!-- Magnifying glass / SEO icon -->
+  <g transform="translate(100, 120)">
+    <rect x="0" y="0" width="80" height="80" rx="16" fill="rgba(255,255,255,0.15)"/>
+    <text x="40" y="56" font-size="40" font-weight="bold" text-anchor="middle" fill="#ffffff" font-family="system-ui">SO</text>
+  </g>
+  <text x="210" y="170" font-size="48" font-weight="700" fill="#ffffff" font-family="system-ui, -apple-system, sans-serif">Frappe SEO</text>
+  <text x="210" y="228" font-size="42" font-weight="600" fill="rgba(255,255,255,0.85)" font-family="system-ui, -apple-system, sans-serif">Search Engine Optimizer</text>
+  <text x="210" y="290" font-size="26" fill="rgba(255,255,255,0.7)" font-family="system-ui, -apple-system, sans-serif">Premium All-in-One SEO Suite for Frappe</text>
+  <!-- Decorative elements -->
+  <rect x="210" y="330" width="80" height="4" rx="2" fill="rgba(255,255,255,0.4)"/>
+  <text x="210" y="370" font-size="18" fill="rgba(255,255,255,0.5)" font-family="system-ui, -apple-system, sans-serif">Meta Tags · Social Cards · Schema.org · Live Analysis</text>
+  <text x="900" y="540" font-size="16" fill="rgba(255,255,255,0.4)" font-family="system-ui, -apple-system, sans-serif">invento-software-limited.github.io/frappe_seo</text>
+</svg>

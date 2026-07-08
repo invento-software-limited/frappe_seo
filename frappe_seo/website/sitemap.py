@@ -1,7 +1,9 @@
-import frappe
 import xml.etree.ElementTree as ET
-from frappe_seo.website.seo_engine import _get_settings
+
+import frappe
 from frappe.utils import now_datetime
+
+from frappe_seo.website.seo_engine import _get_settings
 
 
 def generate_sitemap():
@@ -15,7 +17,9 @@ def generate_sitemap():
 
 	base_url = (settings.canonical_url or "").rstrip("/")
 	if not base_url:
-		frappe.log_error("Frappe SEO: No canonical_url set in SEO Settings — cannot generate sitemap.", "SEO Sitemap")
+		frappe.log_error(
+			"Frappe SEO: No canonical_url set in SEO Settings — cannot generate sitemap.", "SEO Sitemap"
+		)
 		return
 
 	urls = _collect_urls(base_url)
@@ -38,6 +42,7 @@ def generate_sitemap():
 	sitemap_path = f"{site_path}/public/sitemap.xml"
 
 	import os
+
 	os.makedirs(f"{site_path}/public", exist_ok=True)
 
 	with open(sitemap_path, "wb") as f:
@@ -60,12 +65,14 @@ def _collect_urls(base_url):
 			continue
 		if not page.route:
 			continue
-		urls.append({
-			"loc": f"{base_url}/{page.route.lstrip('/')}",
-			"lastmod": page.modified,
-			"changefreq": "weekly",
-			"priority": 0.8,
-		})
+		urls.append(
+			{
+				"loc": f"{base_url}/{page.route.lstrip('/')}",
+				"lastmod": page.modified,
+				"changefreq": "weekly",
+				"priority": 0.8,
+			}
+		)
 
 	# ── Blog Posts ────────────────────────────────────────────────────────────
 	if frappe.db.exists("DocType", "Blog Post"):
@@ -79,12 +86,14 @@ def _collect_urls(base_url):
 				continue
 			if not post.route:
 				continue
-			urls.append({
-				"loc": f"{base_url}/{post.route.lstrip('/')}",
-				"lastmod": post.modified,
-				"changefreq": "monthly",
-				"priority": 0.6,
-			})
+			urls.append(
+				{
+					"loc": f"{base_url}/{post.route.lstrip('/')}",
+					"lastmod": post.modified,
+					"changefreq": "monthly",
+					"priority": 0.6,
+				}
+			)
 
 	# ── Builder Pages ─────────────────────────────────────────────────────────
 	if frappe.db.exists("DocType", "Builder Page"):
@@ -98,11 +107,13 @@ def _collect_urls(base_url):
 				continue
 			if not page.route:
 				continue
-			urls.append({
-				"loc": f"{base_url}/{page.route.lstrip('/')}",
-				"lastmod": page.modified,
-				"changefreq": "weekly",
-				"priority": 0.7,
-			})
+			urls.append(
+				{
+					"loc": f"{base_url}/{page.route.lstrip('/')}",
+					"lastmod": page.modified,
+					"changefreq": "weekly",
+					"priority": 0.7,
+				}
+			)
 
 	return urls
