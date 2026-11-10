@@ -29,6 +29,9 @@ doc_events = {
 	"Builder Page": {
 		"before_save": "frappe_seo.doc_events.automation.before_save",
 	},
+	"Item": {
+		"before_save": "frappe_seo.doc_events.automation.before_save",
+	},
 }
 
 # ── Scheduled Tasks ────────────────────────────────────────────────────────

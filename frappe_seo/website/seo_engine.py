@@ -14,6 +14,9 @@ def get_seo_context(context, doc):
 	settings = _get_settings()
 	tags = frappe._dict(context.get("metatags") or {})
 
+	item = context.get("item")
+	is_dynamic = getattr(doc, "dynamic_route", 0)
+
 	custom_overrides = {}
 	if doc.get("meta_tags"):
 		try:
@@ -23,9 +26,12 @@ def get_seo_context(context, doc):
 
 	title_val = (
 		custom_overrides.get("title")
+		or (item.get("meta_title") or item.get("seo_title") or item.get("item_name") if item else None)
+		or (tags.get("title") if (is_dynamic or item) else None)
 		or getattr(doc, "meta_title", None)
 		or getattr(doc, "seo_title", None)
 		or getattr(doc, "page_title", None)
+		or getattr(doc, "item_name", None)
 		or getattr(doc, "title", "")
 		or context.get("title")
 		or context.get("name")
@@ -41,9 +47,24 @@ def get_seo_context(context, doc):
 	tags.title = title_val
 	context.seo_title = title_val
 
+	item_desc = None
+	if item:
+		item_desc = item.get("meta_description") or (
+			strip_html_tags(str(item.get("description") or "")).strip()[:160]
+			if item.get("description")
+			else None
+		)
+
 	desc_val = (
 		custom_overrides.get("description")
+		or item_desc
+		or (tags.get("description") if (is_dynamic or item) else None)
 		or getattr(doc, _get_description_field(doc.doctype), None)
+		or (
+			strip_html_tags(str(getattr(doc, "description", "") or "")).strip()[:160]
+			if getattr(doc, "description", None)
+			else None
+		)
 		or context.get("description")
 		or _auto_generate_description(doc)
 		or getattr(settings, "site_description", "")
@@ -54,10 +75,22 @@ def get_seo_context(context, doc):
 	tags.description = desc_val
 	context.meta_description = desc_val
 
+	item_image = None
+	if item:
+		item_image = (
+			item.get("meta_image")
+			or item.get("seo_og_image")
+			or item.get("item_image")
+			or item.get("image")
+		)
+
 	image_val = (
 		custom_overrides.get("og:image")
 		or custom_overrides.get("image")
+		or item_image
+		or (tags.get("image") if (is_dynamic or item) else None)
 		or getattr(doc, _get_image_field(doc.doctype), None)
+		or getattr(doc, "image", None)
 		or context.get("image")
 		or getattr(settings, "default_og_image", None)
 	)
@@ -68,10 +101,18 @@ def get_seo_context(context, doc):
 	context.og_image = image_val
 
 	base_url = (getattr(settings, "canonical_url", "") or get_url()).rstrip("/")
-	route = getattr(doc, "route", "") or ""
+	route = (
+		getattr(doc, "custom_route", None)
+		or (item.get("custom_route") if item else None)
+		or getattr(doc, "route", "")
+		or ""
+	)
+	if route and not route.startswith("/") and not route.startswith("shop/") and (item or doc.doctype == "Item"):
+		route = f"shop/{route}"
 
 	canonical = (
 		custom_overrides.get("canonical")
+		or (item.get("seo_canonical_url") if item else None)
 		or getattr(doc, _get_canonical_field(doc.doctype), None)
 		or (f"{base_url}/{route.lstrip('/')}" if base_url and route else "")
 		or context.get("canonical_url")
@@ -79,21 +120,52 @@ def get_seo_context(context, doc):
 	tags.canonical = canonical
 	context.seo_canonical_url = canonical
 
-	tags["og:type"] = custom_overrides.get("og:type") or (
-		"article" if doc.doctype == "Blog Post" else "website"
+	is_item_page = bool(item or doc.doctype == "Item")
+	tags["og:type"] = custom_overrides.get("og:type") or tags.get("og:type") or (
+		"article" if doc.doctype == "Blog Post" else ("product" if is_item_page else "website")
 	)
-	tags["og:title"] = custom_overrides.get("og:title") or tags.title
-	tags["og:description"] = custom_overrides.get("og:description") or tags.description
-	tags["og:image"] = tags.image
+	tags["og:title"] = (
+		custom_overrides.get("og:title")
+		or (item.get("seo_og_title") if item else None)
+		or getattr(doc, "seo_og_title", None)
+		or tags.title
+	)
+	tags["og:description"] = (
+		custom_overrides.get("og:description")
+		or (item.get("seo_og_description") if item else None)
+		or getattr(doc, "seo_og_description", None)
+		or tags.description
+	)
+	tags["og:image"] = (
+		(get_url(item.get("seo_og_image")) if item and item.get("seo_og_image") else None)
+		or (get_url(getattr(doc, "seo_og_image")) if getattr(doc, "seo_og_image", None) else None)
+		or tags.image
+	)
 	tags["og:url"] = tags.canonical
 
 	tags["twitter:card"] = "summary_large_image" if tags.image else "summary"
-	tags["twitter:title"] = custom_overrides.get("twitter:title") or tags.title
-	tags["twitter:description"] = custom_overrides.get("twitter:description") or tags.description
+	tags["twitter:title"] = (
+		custom_overrides.get("twitter:title")
+		or (item.get("seo_twitter_title") if item else None)
+		or getattr(doc, "seo_twitter_title", None)
+		or tags.title
+	)
+	tags["twitter:description"] = (
+		custom_overrides.get("twitter:description")
+		or (item.get("seo_twitter_description") if item else None)
+		or getattr(doc, "seo_twitter_description", None)
+		or tags.description
+	)
 	tags["twitter:image"] = tags.image
 
-	noindex = getattr(doc, "seo_noindex", 0)
-	nofollow = getattr(doc, "seo_nofollow", 0)
+	noindex = (
+		(item.get("seo_noindex") if item else 0)
+		or getattr(doc, "seo_noindex", 0)
+	)
+	nofollow = (
+		(item.get("seo_nofollow") if item else 0)
+		or getattr(doc, "seo_nofollow", 0)
+	)
 	if noindex or nofollow:
 		robots = []
 		if noindex:
@@ -227,7 +299,7 @@ def _auto_generate_description(doc):
 
 
 def _get_description_field(doctype):
-	if doctype in ("Web Page", "Builder Page"):
+	if doctype in ("Web Page", "Builder Page", "Item"):
 		return "meta_description"
 	if doctype == "Blog Post":
 		return "seo_meta_description"
@@ -241,13 +313,13 @@ def _get_canonical_field(doctype):
 
 
 def _get_image_field(doctype):
-	if doctype == "Builder Page":
+	if doctype in ("Builder Page", "Item"):
 		return "meta_image"
 	return "seo_og_image"
 
 
 def _build_schema_graph(doc, settings, context):
-	"""Builds a comprehensive Schema.org Graph including WebPage, Breadcrumbs, and Organization."""
+	"""Builds a comprehensive Schema.org Graph including WebPage, Breadcrumbs, Organization, and Product."""
 	graph = []
 	base_url = get_url().rstrip("/")
 
@@ -275,9 +347,50 @@ def _build_schema_graph(doc, settings, context):
 		webpage["primaryImageOfPage"] = {"@type": "ImageObject", "url": context["og_image"]}
 	graph.append(webpage)
 
-	# 3. Breadcrumbs
-	if doc.route:
-		parts = doc.route.split("/")
+	# 3. Product (if Item or Item Page)
+	item = context.get("item") or (doc if doc.doctype == "Item" else None)
+	if item:
+		product_schema = {
+			"@type": "Product",
+			"@id": f"{base_url}/#product-{item.get('name') or item.get('item_code') or 'item'}",
+			"name": item.get("meta_title") or item.get("item_name") or context.get("seo_title", ""),
+			"description": item.get("meta_description") or context.get("meta_description", ""),
+			"url": context.get("seo_canonical_url", ""),
+		}
+		img = (
+			item.get("meta_image")
+			or item.get("seo_og_image")
+			or item.get("item_image")
+			or item.get("image")
+			or context.get("og_image")
+		)
+		if img:
+			product_schema["image"] = get_url(img)
+		if item.get("brand"):
+			product_schema["brand"] = {"@type": "Brand", "name": item.get("brand")}
+		if item.get("formatted_price") or item.get("price_list_rate"):
+			price_val = item.get("price_list_rate") or item.get("formatted_price")
+			if isinstance(price_val, str):
+				price_clean = re.sub(r"[^\d.]", "", price_val)
+			else:
+				price_clean = price_val
+			product_schema["offers"] = {
+				"@type": "Offer",
+				"price": str(price_clean),
+				"priceCurrency": getattr(settings, "currency", None) or "GBP",
+				"availability": (
+					"https://schema.org/InStock"
+					if item.get("in_stock", True)
+					else "https://schema.org/OutOfStock"
+				),
+				"url": context.get("seo_canonical_url", ""),
+			}
+		graph.append(product_schema)
+
+	# 4. Breadcrumbs
+	route = getattr(doc, "route", "") or (f"shop/{item.get('custom_route', '').lstrip('/')}" if item and item.get("custom_route") else "")
+	if route and ":" not in route:
+		parts = route.strip("/").split("/")
 		items = []
 		path = ""
 		for i, part in enumerate(parts):

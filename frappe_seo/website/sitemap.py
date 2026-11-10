@@ -105,7 +105,7 @@ def _collect_urls(base_url):
 		for page in builder_pages:
 			if page.get("seo_noindex"):
 				continue
-			if not page.route:
+			if not page.route or ":" in page.route:
 				continue
 			urls.append(
 				{
@@ -113,6 +113,43 @@ def _collect_urls(base_url):
 					"lastmod": page.modified,
 					"changefreq": "weekly",
 					"priority": 0.7,
+				}
+			)
+
+	# ── Items (Products) ──────────────────────────────────────────────────────
+	if frappe.db.exists("DocType", "Item"):
+		item_filters = {}
+		if frappe.db.has_column("Item", "custom_publish_on_website"):
+			item_filters["custom_publish_on_website"] = 1
+		elif frappe.db.has_column("Item", "published_in_website"):
+			item_filters["published_in_website"] = 1
+		if frappe.db.has_column("Item", "disabled"):
+			item_filters["disabled"] = 0
+
+		fields = ["name", "modified"]
+		if frappe.db.has_column("Item", "seo_noindex"):
+			fields.append("seo_noindex")
+		if frappe.db.has_column("Item", "custom_route"):
+			fields.append("custom_route")
+
+		items = frappe.db.get_all(
+			"Item",
+			filters=item_filters,
+			fields=fields,
+		)
+		for itm in items:
+			if itm.get("seo_noindex"):
+				continue
+			raw_route = itm.get("custom_route") or itm.name
+			clean_route = str(raw_route).strip("/")
+			if not clean_route.startswith("shop/"):
+				clean_route = f"shop/{clean_route}"
+			urls.append(
+				{
+					"loc": f"{base_url}/{clean_route}",
+					"lastmod": itm.modified,
+					"changefreq": "daily",
+					"priority": 0.8,
 				}
 			)
 
