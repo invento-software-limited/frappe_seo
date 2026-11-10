@@ -42,7 +42,10 @@ jobs:
                   raise ValueError('__version__ not found in frappe_seo/__init__.py')
 
           major = version.split('.')[0]
-          changelog_file = f'frappe_seo/change_log/v{major}/v{version}.md'
+          v_underscore = version.replace('.', '_')
+          changelog_file = f'frappe_seo/change_log/v{major}/v{v_underscore}.md'
+          if not os.path.exists(changelog_file):
+              changelog_file = f'frappe_seo/change_log/v{major}/v{version}.md'
 
           print(f'Detected version: {version}')
 

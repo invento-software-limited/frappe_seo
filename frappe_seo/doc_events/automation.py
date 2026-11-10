@@ -1,4 +1,5 @@
 import frappe
+from frappe.utils import strip_html_tags
 
 from frappe_seo.website.seo_engine import (
 	_auto_generate_description,
@@ -13,7 +14,7 @@ def before_save(doc, method=None):
 	"""
 	Auto-populates SEO meta fields before saving.
 	Handles title branding, automated descriptions, and social tag synchronization
-	for Web Page, Blog Post, and Builder Page DocTypes.
+	for Web Page, Blog Post, Builder Page, and Item DocTypes.
 	"""
 	settings = _get_settings()
 	if not settings.get("enable_seo_automation", 1):
@@ -37,15 +38,33 @@ def before_save(doc, method=None):
 	site_name = getattr(settings, "site_name", "") or ""
 
 	if not doc.get("seo_og_title"):
-		base_title = doc.get("meta_title") or doc.get("page_title") or doc.get("title")
+		base_title = (
+			doc.get("meta_title")
+			or doc.get("page_title")
+			or doc.get("title")
+			or doc.get("item_name")
+		)
 		if base_title:
 			branded_title = base_title
 			if site_name and site_name not in base_title:
 				branded_title = f"{base_title} {separator} {site_name}"
 			doc.seo_og_title = branded_title
 
-	if not doc.get("seo_og_description") and desc_field:
-		doc.seo_og_description = doc.get(desc_field)
+	if not doc.get("seo_og_description"):
+		raw_desc = (
+			doc.get(desc_field)
+			if desc_field
+			else None
+		) or (
+			strip_html_tags(str(doc.get("description") or "")).strip()[:160]
+			if doc.get("description")
+			else ""
+		)
+		if raw_desc:
+			doc.seo_og_description = raw_desc
+
+	if not doc.get("seo_og_image"):
+		doc.seo_og_image = doc.get("meta_image") or doc.get("image")
 
 	if not doc.get("seo_twitter_title"):
 		doc.seo_twitter_title = doc.get("seo_og_title")
@@ -61,18 +80,28 @@ def before_save(doc, method=None):
 def _calculate_seo_score(doc, desc_field):
 	score = 0
 
-	title = doc.get("meta_title") or doc.get("page_title") or doc.get("title")
+	title = (
+		doc.get("meta_title")
+		or doc.get("page_title")
+		or doc.get("title")
+		or doc.get("item_name")
+	)
 	if title:
 		score += 15
 		if 40 <= len(str(title)) <= 65:
 			score += 10
 
+	desc = None
 	if desc_field:
 		desc = doc.get(desc_field)
-		if desc:
-			score += 15
-			if 120 <= len(str(desc)) <= 160:
-				score += 10
+	if not desc and doc.doctype == "Item":
+		desc = doc.get("description")
+
+	if desc:
+		clean_desc = strip_html_tags(str(desc)).strip()
+		score += 15
+		if 120 <= len(clean_desc) <= 160:
+			score += 10
 
 	keyphrase = doc.get("focus_keyphrase")
 	if keyphrase:
@@ -83,7 +112,7 @@ def _calculate_seo_score(doc, desc_field):
 		if desc and keyphrase in str(desc).lower():
 			score += 10
 
-	if doc.get("seo_og_image") or doc.get("meta_image"):
+	if doc.get("seo_og_image") or doc.get("meta_image") or doc.get("image"):
 		score += 10
 
 	if doc.get("seo_schema_type"):
@@ -99,11 +128,19 @@ def _infer_schema_type(doc):
 		return "WebPage"
 	if doc.doctype == "Builder Page":
 		return "WebPage"
+	if doc.doctype == "Item":
+		return "Product"
 	return "WebPage"
 
 
 def _extract_focus_keyphrase(doc):
-	title = doc.get("meta_title") or doc.get("page_title") or doc.get("title") or ""
+	title = (
+		doc.get("meta_title")
+		or doc.get("page_title")
+		or doc.get("title")
+		or doc.get("item_name")
+		or ""
+	)
 	if title:
 		words = [w for w in title.split() if len(w) > 3]
 		return " ".join(words[:2]).lower()

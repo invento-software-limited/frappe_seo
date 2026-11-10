@@ -1,4 +1,4 @@
-const FRAPPE_SEO_DOCTYPES = ["Web Page", "Blog Post", "Builder Page"];
+const FRAPPE_SEO_DOCTYPES = ["Web Page", "Blog Post", "Builder Page", "Item"];
 
 const FIELD_MAP = {
 	"Web Page": {
@@ -21,6 +21,13 @@ const FIELD_MAP = {
 		route: "route",
 		keyphrase: "focus_keyphrase",
 		content_fields: ["blocks", "draft_blocks"],
+	},
+	"Item": {
+		title: "meta_title",
+		description: "meta_description",
+		route: "custom_route",
+		keyphrase: "focus_keyphrase",
+		content_fields: ["description"],
 	},
 };
 
@@ -87,8 +94,8 @@ function getSuggestions(content) {
 function runChecks(frm, fields) {
 	const checks = [];
 	const content = getFullContent(frm, fields);
-	const title = frm.doc[fields.title] || frm.doc.page_title || frm.doc.title || "";
-	const desc = frm.doc[fields.description] || frm.doc.meta_description || "";
+	const title = frm.doc[fields.title] || frm.doc.page_title || frm.doc.title || frm.doc.item_name || "";
+	const desc = frm.doc[fields.description] || frm.doc.meta_description || stripHtml(frm.doc.description || "") || "";
 	const keyphrase = (frm.doc[fields.keyphrase] || "").toLowerCase();
 
 	// Suggestions
@@ -245,15 +252,21 @@ function renderPanel(frm, doctype) {
 		frm.doc[fields.title] ||
 		frm.doc.page_title ||
 		frm.doc.title ||
+		frm.doc.item_name ||
 		frm.doc.name ||
 		"Untitled"
 	).slice(0, 60);
 	const previewDesc = (
 		frm.doc[fields.description] ||
 		frm.doc.meta_description ||
+		stripHtml(frm.doc.description || "") ||
 		"No description set."
 	).slice(0, 160);
-	const previewRoute = frm.doc[fields.route] || frm.doc.name || "";
+	let rawRoute = frm.doc[fields.route] || frm.doc.route || frm.doc.name || "";
+	if (doctype === "Item" && rawRoute && !rawRoute.startsWith("shop/")) {
+		rawRoute = "shop/" + rawRoute.replace(/^\/+/, "");
+	}
+	const previewRoute = rawRoute;
 
 	let html = `
 <div class="frappe-seo-panel" style="font-family: -apple-system, sans-serif;">
@@ -343,7 +356,11 @@ function registerHooks(dt) {
 		...fields.content_fields,
 		"page_title",
 		"title",
+		"item_name",
 		"meta_description",
+		"meta_image",
+		"image",
+		"description",
 	].forEach((f) => {
 		if (f) hooks[f] = refresh;
 	});

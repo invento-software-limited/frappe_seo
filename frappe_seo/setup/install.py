@@ -15,6 +15,7 @@ NATIVE_FIELDS = {
 		"meta_image",
 	},
 	"Builder Page": {"title", "route", "published", "meta_description", "meta_image", "canonical_url"},
+	"Item": {"item_name", "description", "image"},
 }
 
 
@@ -23,7 +24,13 @@ def _existing_custom_fields(doctype):
 	return {r[0] for r in frappe.db.get_all("Custom Field", filters={"dt": doctype}, pluck="fieldname")}
 
 
-def _build_seo_fields(insert_after, meta_description_fieldname=None):
+def _build_seo_fields(
+	insert_after,
+	meta_description_fieldname=None,
+	meta_title_fieldname=None,
+	meta_image_fieldname=None,
+	default_schema_type=None,
+):
 	"""Generates a list of SEO-related custom field definitions organized into sections."""
 	fields = [
 		{
@@ -33,14 +40,20 @@ def _build_seo_fields(insert_after, meta_description_fieldname=None):
 			"collapsible": 1,
 			"insert_after": insert_after,
 		},
-		{
-			"fieldname": "focus_keyphrase",
-			"fieldtype": "Data",
-			"label": "Focus Keyphrase",
-			"description": "The main keyword or phrase this page should rank for",
-			"insert_after": "seo_section",
-		},
 	]
+	prev = "seo_section"
+
+	if meta_title_fieldname:
+		fields.append(
+			{
+				"fieldname": meta_title_fieldname,
+				"fieldtype": "Data",
+				"label": "SEO Title",
+				"description": "Leave blank to use the item name / default title.",
+				"insert_after": prev,
+			}
+		)
+		prev = meta_title_fieldname
 
 	if meta_description_fieldname:
 		fields.append(
@@ -49,12 +62,33 @@ def _build_seo_fields(insert_after, meta_description_fieldname=None):
 				"fieldtype": "Small Text",
 				"label": "Meta Description",
 				"description": "Ideal: 120-160 characters. Shown in Google search results.",
-				"insert_after": "focus_keyphrase",
+				"insert_after": prev,
 			}
 		)
 		prev = meta_description_fieldname
-	else:
-		prev = "focus_keyphrase"
+
+	if meta_image_fieldname:
+		fields.append(
+			{
+				"fieldname": meta_image_fieldname,
+				"fieldtype": "Attach Image",
+				"label": "SEO Image",
+				"description": "Recommended: 1200x630px. Leave blank to use default image.",
+				"insert_after": prev,
+			}
+		)
+		prev = meta_image_fieldname
+
+	fields.append(
+		{
+			"fieldname": "focus_keyphrase",
+			"fieldtype": "Data",
+			"label": "Focus Keyphrase",
+			"description": "The main keyword or phrase this page should rank for",
+			"insert_after": prev,
+		}
+	)
+	prev = "focus_keyphrase"
 
 	fields += [
 		{
@@ -102,6 +136,7 @@ def _build_seo_fields(insert_after, meta_description_fieldname=None):
 			"fieldtype": "Select",
 			"label": "Schema.org Type",
 			"options": "\nWebPage\nArticle\nBlogPosting\nOrganization\nProduct\nFAQPage\nBreadcrumbList",
+			"default": default_schema_type or "WebPage",
 			"insert_after": "seo_twitter_description",
 		},
 		{
@@ -168,6 +203,15 @@ def setup_seo_fields():
 			"meta_description_fieldname": None,
 		}
 
+	if frappe.db.exists("DocType", "Item"):
+		doctypes_config["Item"] = {
+			"insert_after": "description",
+			"meta_title_fieldname": "meta_title",
+			"meta_description_fieldname": "meta_description",
+			"meta_image_fieldname": "meta_image",
+			"default_schema_type": "Product",
+		}
+
 	fields_to_create = {}
 
 	for doctype, config in doctypes_config.items():
@@ -178,6 +222,9 @@ def setup_seo_fields():
 		raw_fields = _build_seo_fields(
 			config["insert_after"],
 			config.get("meta_description_fieldname"),
+			config.get("meta_title_fieldname"),
+			config.get("meta_image_fieldname"),
+			config.get("default_schema_type"),
 		)
 
 		filtered = [f for f in raw_fields if f["fieldname"] not in skip]
